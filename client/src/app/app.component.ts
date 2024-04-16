@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { AccountService } from './service/account.service';
+import { User } from './models/user';
 
 
 @Component({
@@ -17,15 +18,24 @@ export class AppComponent implements OnInit {
   weatherData: any;
   idEnterd: string = '' ;
   getCourses: any;
+  loggedIn = false;;
 
 
   constructor(private _accountService: AccountService) {
 
   }
   ngOnInit(): void {
-    this.dotnetApiCalling()
+   // this.dotnetApiCalling()
    // this.nodeApiCalling();
-    this.weatherAPI();
+  //  this.weatherAPI();
+    this.setCurrentUser();
+  }
+
+  getCurrentUser(){
+    this._accountService.currentUser$.subscribe({
+      next:user => this.loggedIn = !!user,
+      error:error =>console.log(error)
+    })
   }
 
   dotnetApiCalling() {
@@ -55,6 +65,14 @@ export class AppComponent implements OnInit {
         this.getCourses = data
       }
     )
+  }
+  
+//Persist Login 
+  setCurrentUser(){
+    const userString = localStorage.getItem('user');
+    if(!userString) return;
+    const user : User = JSON.parse(userString);
+    this._accountService.setCurrentUser(user);
   }
 
 }
